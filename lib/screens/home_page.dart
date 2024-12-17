@@ -14,13 +14,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<String> items = [
     "All",
-    "Completed",
-    "Gadget",
-    "Art",
-    "Toys",
-    "Cars",
     "Shoes",
-    "Misc"
+    "Tshirt",
+    "Shirt",
+    "Lower",
+    "Pants",
+    "Shorts",
+    "Jackets",
+    "Others"
   ];
   int current = 0;
 

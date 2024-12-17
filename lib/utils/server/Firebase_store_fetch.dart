@@ -12,6 +12,53 @@ class FirestoreService {
   CommonMethods methods = CommonMethods();
 
 
+ Future<List<Map<String, dynamic>>> fetchUserBids(String userName) async {
+    try {
+      // Fetch bids where the userName matches
+      QuerySnapshot bidsSnapshot = await FirebaseFirestore.instance
+          .collection('bids')
+          .where('userName', isEqualTo: userName)
+          .get();
+
+      // Process and return the bids
+      List<Map<String, dynamic>> userBids = bidsSnapshot.docs.map((doc) {
+        // Convert document to map and add document ID
+        var data = doc.data() as Map<String, dynamic>;
+        data['docId'] = doc.id;
+        return data;
+      }).toList();
+
+      // Fetch additional product details for each bid
+      for (var bid in userBids) {
+        // Fetch product details using productId
+        DocumentSnapshot productDoc = await FirebaseFirestore.instance
+            .collection('products')
+            .doc(bid['productId'])
+            .get();
+
+        // Add product details to the bid
+        if (productDoc.exists) {
+          var productData = productDoc.data() as Map<String, dynamic>;
+          bid['productName'] = productData['name'] ?? 'Unknown Product';
+          bid['productImage'] = productData['image'] ?? '';
+          bid['productDescription'] = productData['description'] ?? '';
+          bid['productAuthor'] = productData['author'] ?? '';
+          bid['productEmail'] = productData['email'] ?? '';
+          bid['currentPrice'] = productData['price'] ?? '0';
+          bid['auctionEndTime'] = productData['time']?.toDate().toString() ?? '';
+          bid['isAuctionClosed'] = DateTime.now().isAfter(
+            DateTime.parse(bid['auctionEndTime'])
+          );
+        }
+      }
+
+      return userBids;
+    } catch (e) {
+      print('Error fetching user bids: $e');
+      return [];
+    }
+  }
+
   Future<void> uploadAuctionData(BuildContext context,
       String product_name,
       String type,

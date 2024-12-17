@@ -1,5 +1,6 @@
 import 'package:auctionapp/const/colors.dart';
 import 'package:auctionapp/const/shared_preferences.dart';
+import 'package:auctionapp/screens/sellers_profile_page.dart';
 import 'package:auctionapp/utils/common_methods/methods.dart';
 import 'package:auctionapp/utils/server/Firebase_store_fetch.dart';
 import 'package:auctionapp/widgets/bidding_list_view.dart';
@@ -65,8 +66,6 @@ class _ProductPageState extends State<ProductPage> {
     }
   }
 
-
-
   Future<void> updateWinner() async {
     String? winner =
     await firestoreService.updateStatusToCompleted("${widget.name}-${widget.email}");
@@ -74,8 +73,6 @@ class _ProductPageState extends State<ProductPage> {
       this.winner = winner;
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -112,6 +109,48 @@ class _ProductPageState extends State<ProductPage> {
                 name: widget.name,
                 description: widget.desc,
                 author: widget.author,
+              ),
+              // New section to navigate to seller's profile
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SellerProfilePage(
+                        sellerEmail: widget.email,
+                        sellerName: widget.author,
+                      ),
+                    ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Listed by: ",
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        widget.author,
+                        style: TextStyle(
+                          color: AppColor.green,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 5),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: AppColor.green,
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                ),
               ),
               SizedBox(height: 10),
               BidPriceWidget(minBidPrice: minBidPrice),
@@ -175,7 +214,7 @@ class _ProductPageState extends State<ProductPage> {
                     "Time Remaining",
                   ),
                   SlideCountdown(
-                    textStyle: TextStyle(
+                    style: TextStyle(
                         fontSize: 26,
                         color: Colors.white,
                         fontWeight: FontWeight.bold),
@@ -277,5 +316,3 @@ class _ProductPageState extends State<ProductPage> {
         });
   }
 }
-
-

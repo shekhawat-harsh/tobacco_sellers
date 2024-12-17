@@ -1,3 +1,4 @@
+import 'package:auctionapp/screens/home_page.dart';
 import 'package:auctionapp/screens/login_page.dart';
 import 'package:auctionapp/screens/onboarding_Screen.dart';
 import 'package:auctionapp/screens/splash_screen.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Poppins',
       ),
       home:  SplashScreen(),
+      // home: HomePage(),
       routes: <String, WidgetBuilder>{
         '/onboarding': (BuildContext context) => const OnboardingScreen(),
         '/signup': (BuildContext context) => const LoginPage()
