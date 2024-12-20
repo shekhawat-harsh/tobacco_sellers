@@ -1,4 +1,4 @@
-import 'package:auctionapp/const/colors.dart';
+import 'package:tobacco_sellers/const/colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomTextfield extends StatelessWidget {

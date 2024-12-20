@@ -1,6 +1,6 @@
-import 'package:auctionapp/const/colors.dart';
-import 'package:auctionapp/screens/add_item.dart';
-import 'package:auctionapp/widgets/product_loading.dart';
+import 'package:tobacco_sellers/const/colors.dart';
+import 'package:tobacco_sellers/screens/add_item.dart';
+import 'package:tobacco_sellers/widgets/product_loading.dart';
 import 'package:flutter/material.dart';
 
 

@@ -1,5 +1,6 @@
-import 'package:auctionapp/const/colors.dart';
-import 'package:auctionapp/const/shared_preferences.dart';
+import 'package:tobacco_sellers/const/colors.dart';
+import 'package:tobacco_sellers/const/shared_preferences.dart';
+import 'package:tobacco_sellers/widgets/personal_detail_tab.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/Profile_item_containers.dart';
@@ -16,6 +17,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final String? userName = SharedPreferenceHelper().getUserName();
   final String? userEmail = SharedPreferenceHelper().getEmail();
   final String? userBal = SharedPreferenceHelper().getBalance();
+  final String? userPincode = SharedPreferenceHelper().getPincode();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("$userName", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),),
+                  Text("Username: $userName", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),),
                   SizedBox(width: 8,),
                   Icon(Icons.verified, color: AppColor.green,)
                 ],
@@ -73,39 +75,32 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
               SizedBox(
-                height: 30,
+                height: 10,
+              ),
+             
+              SizedBox(
+                height: 10,
+              ),
+              ElevatedButton(onPressed: () =>Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const PersonalDetailsTab()),
+                              ), child: Text("Personal Details" , style: TextStyle(color: Colors.black),),style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(AppColor.green)),),
+
+
+                               SizedBox(
+                height: 10,
               ),
 
               Container(
                 height: 30,
                 width: 150,
-                child: ToggleButtons(
-                  borderRadius: BorderRadius.circular(30),
-                  selectedColor: Colors.black,
-                  borderColor: AppColor.green,
-                  color: Colors.white,
-                  fillColor: AppColor.green,
-                  isSelected: [_isPostedSelected, !_isPostedSelected],
-                  onPressed: (index) {
-                    setState(() {
-                      _isPostedSelected = index == 0;
-                    });
-                  },
-                  children:  [
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 0),
-                      child: Text('Posted',),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 0),
-
-                      child: Text('Owned'),
-                    ),
-                  ],
+                child: Center(
+                  child: Text('Posted', style: TextStyle(color: Colors.white)),
                 ),
               ),
               SizedBox(height: 20),
-              _isPostedSelected ? PostedContainer() : OwnedContainer(),
+              PostedContainer(),
             ],
           ),
         ),

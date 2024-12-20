@@ -1,5 +1,5 @@
-import 'package:auctionapp/const/colors.dart';
-import 'package:auctionapp/screens/login_page.dart';
+import 'package:tobacco_sellers/const/colors.dart';
+import 'package:tobacco_sellers/screens/login_page.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -67,8 +67,5 @@ class _PageContainerState extends State<PageContainer> {
       }
     );
   }
-}
-
-
-
-
+  
+  }

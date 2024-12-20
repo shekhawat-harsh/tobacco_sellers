@@ -1,9 +1,9 @@
-import 'package:auctionapp/const/colors.dart';
-import 'package:auctionapp/const/shared_preferences.dart';
-import 'package:auctionapp/screens/sellers_profile_page.dart';
-import 'package:auctionapp/utils/common_methods/methods.dart';
-import 'package:auctionapp/utils/server/Firebase_store_fetch.dart';
-import 'package:auctionapp/widgets/bidding_list_view.dart';
+import 'package:tobacco_sellers/const/colors.dart';
+import 'package:tobacco_sellers/const/shared_preferences.dart';
+import 'package:tobacco_sellers/screens/sellers_profile_page.dart';
+import 'package:tobacco_sellers/utils/common_methods/methods.dart';
+import 'package:tobacco_sellers/utils/server/Firebase_store_fetch.dart';
+import 'package:tobacco_sellers/widgets/bidding_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:slide_countdown/slide_countdown.dart';
 
@@ -156,7 +156,7 @@ class _ProductPageState extends State<ProductPage> {
               BidPriceWidget(minBidPrice: minBidPrice),
               SizedBox(height: 20),
 
-              winner==null?
+              winner==null && widget.time.isAfter(DateTime.now())?
               PlaceBidButtonWidget(
                 onTap: () {
                   buildShowModalBottomSheet(context, widget.time, widget.author);

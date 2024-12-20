@@ -1,8 +1,8 @@
-import 'package:auctionapp/screens/home_page.dart';
-import 'package:auctionapp/screens/login_page.dart';
-import 'package:auctionapp/screens/onboarding_Screen.dart';
-import 'package:auctionapp/screens/splash_screen.dart';
-import 'package:auctionapp/const/shared_preferences.dart';
+import 'package:tobacco_sellers/screens/home_page.dart';
+import 'package:tobacco_sellers/screens/login_page.dart';
+import 'package:tobacco_sellers/screens/onboarding_Screen.dart';
+import 'package:tobacco_sellers/screens/splash_screen.dart';
+import 'package:tobacco_sellers/const/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';

@@ -1,5 +1,5 @@
-import 'package:auctionapp/const/colors.dart';
-import 'package:auctionapp/utils/server/Firebase_store_fetch.dart';
+import 'package:tobacco_sellers/const/colors.dart';
+import 'package:tobacco_sellers/utils/server/Firebase_store_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

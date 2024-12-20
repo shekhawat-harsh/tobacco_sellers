@@ -31,6 +31,10 @@ class SharedPreferenceHelper {
     return _preferences?.getString('userBal');
   }
 
+  String? getPincode() {
+    return _preferences?.getString('userPincode');
+  }
+
   Future<void> saveUserName(String? name) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('userName', name!);

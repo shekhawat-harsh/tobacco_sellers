@@ -97,7 +97,7 @@ class BidPriceWidget extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              "\$$minBidPrice",
+              "₹$minBidPrice",
               style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             ),
           ),
@@ -158,7 +158,18 @@ class WinnerWidget extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              winner == null?
+              Icon(Icons.timer):
               Icon(Icons.celebration_outlined),
+              winner == null ?
+               Text(
+                "Times Up, Not for grabs",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ):
               Text(
                 "Winner: $winner",
                 style: TextStyle(
@@ -167,6 +178,8 @@ class WinnerWidget extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              winner == null?
+              Icon(Icons.timer):
               Icon(Icons.celebration_outlined),
             ],
           ),

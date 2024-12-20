@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'package:auctionapp/const/shared_preferences.dart';
-import 'package:auctionapp/widgets/page_container.dart';
+import 'package:tobacco_sellers/const/shared_preferences.dart';
+import 'package:tobacco_sellers/widgets/page_container.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -204,21 +204,7 @@ class FirestoreService {
   }
 
 
-  Future<List<Map<String, dynamic>>> fetchProductsAll() async {
-    try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('Auctions')
-          .get();
-
-      List<Map<String, dynamic>> productList = querySnapshot.docs.map((
-          doc) => doc.data() as Map<String, dynamic>).toList();
-      return productList;
-    } catch (e) {
-      print("Error fetching products: $e");
-      return [];
-    }
-  }
-
+ 
   Future<List<Map<String, dynamic>>> fetchProductsByUserEmail(
       String userEmail) async {
     try {
@@ -256,24 +242,7 @@ class FirestoreService {
   }
 
 
-  Future<List<Map<String, dynamic>>> fetchProductsByType(
-      String productType) async {
-    try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('Auctions')
-          .where('type', isEqualTo: productType)
-          .where('status', isEqualTo: 'running')
-          .get();
-
-      List<Map<String, dynamic>> productList = querySnapshot.docs.map((
-          doc) => doc.data() as Map<String, dynamic>).toList();
-      return productList;
-    } catch (e) {
-      print("Error fetching products: $e");
-      return [];
-    }
-  }
-
+ 
   Future<List<Map<String, dynamic>>> fetchCompletedProducts() async {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -338,6 +307,85 @@ class FirestoreService {
       return [ totalBids.toDouble(),  runningCount.toDouble(), completeCount.toDouble(), totalValue, ];
     } catch (e) {
       print('Error fetching auction stats: $e');
+      return [];
+    }
+  }
+
+
+  Future<List<Map<String, dynamic>>> fetchProductsAll() async {
+  try {
+    // Fetch auction products
+    QuerySnapshot auctionSnapshot = await FirebaseFirestore.instance
+        .collection('Auctions')
+        .where('status', isEqualTo: 'running')
+        .get();
+
+    // Fetch normal products
+    QuerySnapshot normalSnapshot = await FirebaseFirestore.instance
+        .collection('NormalProducts')
+        .where('status', isEqualTo: 'available')
+        .get();
+
+    List<Map<String, dynamic>> allProducts = [];
+
+    // Add auction products
+    for (var doc in auctionSnapshot.docs) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      data['isAuction'] = true;
+      allProducts.add(data);
+    }
+
+    // Add normal products
+    for (var doc in normalSnapshot.docs) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      data['isAuction'] = false;
+      allProducts.add(data);
+    }
+
+    return allProducts;
+  } catch (e) {
+    print("Error fetching products: $e");
+    return [];
+  }
+}
+  Future<List<Map<String, dynamic>>> fetchProductsByType(String productType) async {
+    try {
+      // Fetch auctions of specific type
+      QuerySnapshot auctionSnapshot = await FirebaseFirestore.instance
+          .collection('Auctions')
+          .where('type', isEqualTo: productType)
+          .where('status', isEqualTo: 'running')
+          .get();
+
+      // Fetch normal products of specific type
+      QuerySnapshot normalSnapshot = await FirebaseFirestore.instance
+          .collection('NormalProducts')
+          .where('type', isEqualTo: productType)
+          .where('status', isEqualTo: 'available')
+          .get();
+
+      // Process auction products
+      List<Map<String, dynamic>> auctionProducts = auctionSnapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return {
+          ...data,
+          'isAuction': true,
+        };
+      }).toList();
+
+      // Process normal products
+      List<Map<String, dynamic>> normalProducts = normalSnapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return {
+          ...data,
+          'isAuction': false,
+        };
+      }).toList();
+
+      // Combine and return filtered products
+      return [...auctionProducts, ...normalProducts];
+    } catch (e) {
+      print("Error fetching products by type: $e");
       return [];
     }
   }

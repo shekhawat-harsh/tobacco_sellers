@@ -1,6 +1,6 @@
 import 'dart:math';
-import 'package:auctionapp/utils/common_methods/methods.dart';
-import 'package:auctionapp/utils/server/Firebase_store_fetch.dart';
+import 'package:tobacco_sellers/utils/common_methods/methods.dart';
+import 'package:tobacco_sellers/utils/server/Firebase_store_fetch.dart';
 import 'package:flutter/material.dart';
 import '../const/colors.dart';
 import '../screens/product_page.dart';
