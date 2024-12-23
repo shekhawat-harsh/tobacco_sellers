@@ -1,4 +1,4 @@
-import 'package:tobacco_sellers/const/colors.dart';
+import 'package:tobacCoSellers/const/colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomTextfield extends StatelessWidget {
@@ -21,7 +21,7 @@ class CustomTextfield extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: AppColor.green),),
+        Text(label, style: TextStyle(color: AppColor.secondary),),
         TextField(
           controller: controller,
           keyboardType: type,
@@ -36,7 +36,7 @@ class CustomTextfield extends StatelessWidget {
               borderSide: BorderSide(color: Colors.white),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: AppColor.green)
+              borderSide: BorderSide(color: AppColor.secondary)
             )
           ),
         )

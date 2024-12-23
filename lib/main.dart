@@ -1,8 +1,7 @@
-import 'package:tobacco_sellers/screens/home_page.dart';
-import 'package:tobacco_sellers/screens/login_page.dart';
-import 'package:tobacco_sellers/screens/onboarding_Screen.dart';
-import 'package:tobacco_sellers/screens/splash_screen.dart';
-import 'package:tobacco_sellers/const/shared_preferences.dart';
+import 'package:tobacCoSellers/screens/login_page.dart';
+import 'package:tobacCoSellers/screens/onboarding_Screen.dart';
+import 'package:tobacCoSellers/screens/splash_screen.dart';
+import 'package:tobacCoSellers/const/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';

@@ -1,9 +1,11 @@
 import 'dart:io';
-import 'package:tobacco_sellers/const/shared_preferences.dart';
-import 'package:tobacco_sellers/widgets/page_container.dart';
+import 'package:tobacCoSellers/const/shared_preferences.dart';
+import 'package:tobacCoSellers/models/delhivery_models.dart';
+import 'package:tobacCoSellers/widgets/page_container.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:uuid/uuid.dart'; 
 
 import '../common_methods/methods.dart';
 
@@ -67,7 +69,8 @@ class FirestoreService {
       String desc,
       String author,
       String author_email,
-      File photo,) async {
+      File photo,
+      String weight) async { // Add weight parameter
     try {
       final storage = FirebaseStorage.instance;
       final storageRef = storage.ref();
@@ -81,9 +84,13 @@ class FirestoreService {
       final firestore = FirebaseFirestore.instance;
       final userCollection = firestore.collection('Auctions');
 
-      final userDocument = userCollection.doc('$product_name-$author_email');
+      var uuid = Uuid();
+      String productId = uuid.v4(); // Generate unique product_id
+
+      final userDocument = userCollection.doc(productId);
 
       await userDocument.set({
+        'product_id': productId, // Add product_id to the document
         'product_name': product_name,
         'type': type,
         'description': desc,
@@ -95,6 +102,7 @@ class FirestoreService {
         'productPhotoUrl': productPicUrl,
         'winner': 'none',
         'currentBid': min_price,
+        'weight': weight, // Add weight to the document
       });
       methods.showSimpleToast("Your Product has been Uploaded");
 
@@ -323,7 +331,6 @@ class FirestoreService {
     // Fetch normal products
     QuerySnapshot normalSnapshot = await FirebaseFirestore.instance
         .collection('NormalProducts')
-        .where('status', isEqualTo: 'available')
         .get();
 
     List<Map<String, dynamic>> allProducts = [];
@@ -386,6 +393,52 @@ class FirestoreService {
       return [...auctionProducts, ...normalProducts];
     } catch (e) {
       print("Error fetching products by type: $e");
+      return [];
+    }
+  }
+
+  Future<void> registerWarehouse(DelhiveryWarehouse warehouse) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('sellers')
+          .add(warehouse.toJson());
+      print('Warehouse registered successfully');
+    } catch (e) {
+      print('Error registering warehouse: $e');
+      throw e;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchNormalProductsByUserEmail(String userEmail) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('NormalProducts')
+          .where('seller_email', isEqualTo: userEmail)
+          .get();
+
+      List<Map<String, dynamic>> productList = querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+      return productList;
+    } catch (e) {
+      print("Error fetching normal products: $e");
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAuctionsByUserEmail(String userEmail) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('Auctions')
+          .where('Poster_email', isEqualTo: userEmail)
+          .get();
+
+      List<Map<String, dynamic>> auctionList = querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+      return auctionList;
+    } catch (e) {
+      print("Error fetching auctions: $e");
       return [];
     }
   }

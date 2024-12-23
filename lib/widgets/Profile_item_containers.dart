@@ -1,9 +1,9 @@
-import 'package:tobacco_sellers/const/colors.dart';
-import 'package:tobacco_sellers/const/shared_preferences.dart';
-import 'package:tobacco_sellers/utils/server/Firebase_store_fetch.dart';
+import 'package:tobacCoSellers/const/colors.dart';
+import 'package:tobacCoSellers/const/shared_preferences.dart';
+import 'package:tobacCoSellers/utils/server/Firebase_store_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:tobacco_sellers/utils/server/Product_normal_selling_services.dart';
+import 'package:tobacCoSellers/utils/server/Product_normal_selling_services.dart';
 
 class PostedContainer extends StatelessWidget {
   FirestoreService firestoreFetch = FirestoreService();
@@ -22,7 +22,7 @@ class PostedContainer extends StatelessWidget {
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-            border: Border.all(width: 2, color: AppColor.green),
+            border: Border.all(width: 2, color: AppColor.secondary),
             borderRadius: BorderRadius.circular(20)),
         child: FutureBuilder<List<Map<String, dynamic>>>(
           future: _fetchAllProducts(),
@@ -30,12 +30,12 @@ class PostedContainer extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
                 child: CircularProgressIndicator(
-                  color: AppColor.primary,
+                  color: AppColor.secondary,
                 ),
               );
             } else if (snapshot.hasError) {
               return Center(
-                child: Text("Error fetching products: ${snapshot.error}"),
+                child: Text("Error fetching products: ${snapshot.error}", style: TextStyle(color: AppColor.secondary)),
               );
             } else {
               List<Map<String, dynamic>> productList = snapshot.data ?? [];
@@ -43,7 +43,7 @@ class PostedContainer extends StatelessWidget {
                 shrinkWrap: true,
                 itemCount: productList.length,
                 separatorBuilder: (context, index) => Divider(
-                  color: Colors.white,
+                  color: AppColor.secondary,
                 ),
                 itemBuilder: (context, index) {
                   Map<String, dynamic> productData = productList[index];
@@ -57,9 +57,9 @@ class PostedContainer extends StatelessWidget {
                       ),
                     ),
                     title: Text(
-                      "Title: ${productData['product_name']}",
+                      "${productData['product_name']}",
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppColor.secondary,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),

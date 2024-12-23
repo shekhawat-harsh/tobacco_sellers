@@ -55,10 +55,11 @@ class SharedPreferenceHelper {
 
   Future<void> saveBalance2(String balance) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userBal', balance!);
+    await prefs.setString('userBal', balance);
   }
 
-
-
-
+  Future<void> clear() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
 }

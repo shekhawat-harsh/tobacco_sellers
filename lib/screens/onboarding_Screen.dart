@@ -1,5 +1,5 @@
-import 'package:tobacco_sellers/const/colors.dart';
-import 'package:tobacco_sellers/screens/login_page.dart';
+import 'package:tobacCoSellers/const/colors.dart';
+import 'package:tobacCoSellers/screens/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -23,7 +23,7 @@ class OnboardingScreen extends StatelessWidget {
                 child: SizedBox(
                   width: 240,
                   height: 180,
-                  child: Image.asset("assets/images/img3.png", height: 200, width: 300, fit: BoxFit.cover,),
+                  child: Image.asset("assets/images/img3.png", height: 200, width: 300, fit: BoxFit.cover),
                 ),
               ),
             ),
@@ -36,7 +36,7 @@ class OnboardingScreen extends StatelessWidget {
               child: SizedBox(
                 width: 300,
                 height: 220,
-                child: Image.asset("assets/images/img2.jpg", height: 200, width: 300, fit: BoxFit.cover,),
+                child: Image.asset("assets/images/img2.jpg", height: 200, width: 300, fit: BoxFit.cover),
               ),
             ),
           ), //Container
@@ -50,7 +50,7 @@ class OnboardingScreen extends StatelessWidget {
                 child: SizedBox(
                   height: 180,
                   width: 240,
-                  child: Image.asset("assets/images/img1.png", fit: BoxFit.cover,),
+                  child: Image.asset("assets/images/img1.png", fit: BoxFit.cover),
                 ),
               ),
             ),
@@ -61,12 +61,11 @@ class OnboardingScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children:  [
-                Text("Place bids", style: TextStyle(color: Colors.white, fontSize: 42, fontWeight: FontWeight.bold),),
-                Text("& Win",style: TextStyle(color: AppColor.green, fontSize: 42, fontWeight: FontWeight.bold),),
+                Text("Tobacco", style: TextStyle(color: AppColor.secondary, fontSize: 42, fontWeight: FontWeight.bold)),
                 Container(
                   height: 5,
                   width: 100,
-                  color: Colors.white,
+                  color: AppColor.secondary,
                 )
               ],
             )
@@ -77,7 +76,7 @@ class OnboardingScreen extends StatelessWidget {
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children:  [
-              Text("Discover Thrilling Auctions\nYour Gateway to Exclusive Deals", style: TextStyle(color: Colors.white, fontSize: 18),),
+              Text("-Put auctions and list your products\n-Handle sales", style: TextStyle(fontWeight: FontWeight.w700 ,color: AppColor.secondary, fontSize: 18)),
               SizedBox(height: 20,),
               InkWell(
                 onTap: (){
@@ -91,11 +90,11 @@ class OnboardingScreen extends StatelessWidget {
                   height: 60,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColor.green
+                    color: AppColor.secondary
                   ),
                   child: Icon(
                     Icons.arrow_forward,
-                    color: Colors.white,
+                    color: AppColor.primary,
                     size: 40,
                   ),
                 ),

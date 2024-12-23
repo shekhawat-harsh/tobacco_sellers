@@ -1,7 +1,9 @@
-import 'package:tobacco_sellers/const/colors.dart';
-import 'package:tobacco_sellers/utils/server/Firebase_store_fetch.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tobacCoSellers/const/colors.dart';
+import 'package:tobacCoSellers/utils/server/Firebase_store_fetch.dart';
 import 'package:flutter/material.dart';
+import 'package:tobacCoSellers/const/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -12,24 +14,204 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   FirestoreService firestoreService = FirestoreService();
-  late List<double> numbers = [];
-  Future<List<GridItem>> getAuctionStatistics() async {
-    List<double> stats = await firestoreService.getAuctionStats();
-    numbers = stats;
-    List<GridItem> gridItems = [
-      GridItem(Icons.align_vertical_bottom_outlined, 'Total Number of Bids in this app', stats[0].toString()),
-      GridItem(Icons.assignment_outlined, 'Currently running Number of bids', stats[1].toString()),
-      GridItem(Icons.brightness_high_outlined, 'Total Number of Completed Bids', stats[2].toString()),
-      GridItem(Icons.price_change_rounded, 'Total Auction Value Amount', stats[3].toString()),
-    ];
+  late List<Map<String, dynamic>> userProducts = [];
+  late List<Map<String, dynamic>> userAuctions = [];
+  String? userEmail;
 
-    return gridItems;
+  @override
+  void initState() {
+    super.initState();
+    _loadUserEmail();
+    _fetchUserProducts();
+    _fetchUserAuctions();
   }
 
-  List<Color> gradientColors = [
-    Colors.greenAccent.shade200,
-    AppColor.green,
-  ];
+  Future<void> _loadUserEmail() async {
+    final prefs = SharedPreferenceHelper();
+    final email = prefs.getEmail();
+    setState(() {
+      userEmail = email;
+    });
+  }
+
+  Future<void> _fetchUserProducts() async {
+    if (userEmail != null) {
+      final products = await firestoreService.fetchProductsAll();
+      setState(() {
+        userProducts = products.where((product) => product['seller_email'] == userEmail && !product['isAuction']).toList();
+      });
+    }
+  }
+
+  Future<void> _fetchUserAuctions() async {
+    if (userEmail != null) {
+      final auctions = await firestoreService.fetchProductsByUserEmail(userEmail!);
+      setState(() {
+        userAuctions = auctions;
+      });
+    }
+  }
+
+  Future<void> _markSizeAsSold(Map<String, dynamic> product, String size) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('NormalProducts')
+          .where('product_id', isEqualTo: product['product_id'])
+          .get();
+
+      for (var doc in querySnapshot.docs) {
+        final sizeStocks = doc['size_stocks'] as Map<String, dynamic>;
+        if (sizeStocks[size] == 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Stock is already set to zero')),
+          );
+        } else {
+          await doc.reference.update({'size_stocks.$size': 0});
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Stock set to zero')),
+          );
+        }
+      }
+      _fetchUserProducts();
+    } catch (e) {
+      print('Error marking size as sold: $e');
+    }
+  }
+
+  void _showConfirmDialog(Map<String, dynamic> product, String size) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColor.primary,
+          title: const Text('Confirm', style: TextStyle(color: AppColor.secondary)),
+          content: Text(
+            'Are you sure you want to set the stock of size $size to 0?',
+            style: const TextStyle(color: AppColor.secondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel', style: TextStyle(color: AppColor.secondary)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _markSizeAsSold(product, size);
+              },
+              child: const Text('Confirm', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildProductCard(Map<String, dynamic> product) {
+    return Card(
+      color: AppColor.secondary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(product['productPhotoUrl'], fit: BoxFit.cover, width: 60, height: 60),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(product['product_name'], style: const TextStyle(color: AppColor.primary, fontWeight: FontWeight.bold)),
+                      Text('Type: ${product['type']}', style: const TextStyle(color: AppColor.primary)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            ...product['size_stocks'].entries.map<Widget>((entry) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      text: "Size ${entry.key}: ",
+                      style: const TextStyle(color: AppColor.primary, fontWeight: FontWeight.bold),
+                      children: [
+                        TextSpan(
+                          text: "${entry.value} units",
+                          style: const TextStyle(fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _showConfirmDialog(product, entry.key),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.primary,
+                    ),
+                    child: const Text('Mark as Sold', style: TextStyle(color: AppColor.secondary)),
+                  ),
+                ],
+              );
+            }).toList(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuctionCard(Map<String, dynamic> auction) {
+    return Card(
+      color: AppColor.secondary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(auction['productPhotoUrl'], fit: BoxFit.cover, width: 60, height: 60),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(auction['product_name'], style: const TextStyle(color: AppColor.primary, fontWeight: FontWeight.bold)),
+                      Text('Type: ${auction['type']}', style: const TextStyle(color: AppColor.primary)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "Ending Date and Time: ${DateFormat('MM-dd-yyyy hh:mm a').format(auction['BiddingEnd'].toDate())}",
+              style: const TextStyle(color: AppColor.primary, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              "Current Bidding Price: ₹${auction['currentBid']}",
+              style: const TextStyle(color: AppColor.primary, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,86 +219,59 @@ class _DashboardPageState extends State<DashboardPage> {
       backgroundColor: AppColor.primary,
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 30,),
+              const SizedBox(height: 30),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
-                  Icon(Icons.menu_rounded, color: Colors.white,),
-                  SizedBox(width: 10,),
-                  Text("Dashboard", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),),
+                  Icon(Icons.menu_rounded, color: AppColor.secondary),
+                  SizedBox(width: 10),
+                  Text("Dashboard", style: TextStyle(color: AppColor.secondary, fontWeight: FontWeight.bold, fontSize: 22)),
                 ],
               ),
-              Container(
-                child: FutureBuilder<List<GridItem>>(
-                  future: getAuctionStatistics(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator(
-                        color: AppColor.green,
-                      ));
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error loading data'));
-                    } else {
-                      List<GridItem> gridItems = snapshot.data ?? [];
-                      return Column(
-                        children: [
-                          SizedBox(
-                            height: 360,
-                            child: GridView.builder(
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2, // Number of columns
-                              ),
-                              itemCount: gridItems.length,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                    margin: EdgeInsets.all(8),
-                                    padding: EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: AppColor.secondary,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Icon(gridItems[index].icon, color: AppColor.primary, size: 30,),
-                                        SizedBox(height: 10,),
-                                        Text(gridItems[index].title, style: TextStyle(fontSize: 13),),
-                                        SizedBox(height: 10,),
-                                        Text(gridItems[index].number, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
-                                      ],
-                                    )
-                                );
-                              },
-                            ),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Row(
-                            children: const [
-                              Icon(Icons.insert_chart_outlined, size: 30, color: Colors.white,),
-                              SizedBox(width: 8,),
-                              Text("Summary Charts", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),)
-                            ],
-                          ),
-                          SizedBox(height: 15,),
-                          Container(
-                            width: double.infinity,
-                            height: 400,
-                            child: numbers.isNotEmpty?LineChart(
-                              mainData(),
-                            ): Container(),
-                          ),
-                        ],
-                      );
-                    }
-                  },
-                ),
+              const SizedBox(height: 20),
+              GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _buildGridItem(Icons.list, 'Number of Products Listed', userProducts.length.toString()),
+                  _buildGridItem(Icons.gavel, 'Total Number of Auctions Placed by You', userAuctions.length.toString()),
+                ],
               ),
-
+              const SizedBox(height: 20),
+              const Text(
+                'Your Normally Listed Products',
+                style: TextStyle(color: AppColor.secondary, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: userProducts.length,
+                itemBuilder: (context, index) {
+                  final product = userProducts[index];
+                  return _buildProductCard(product);
+                },
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Your Auctions',
+                style: TextStyle(color: AppColor.secondary, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: userAuctions.length,
+                itemBuilder: (context, index) {
+                  final auction = userAuctions[index];
+                  return _buildAuctionCard(auction);
+                },
+              ),
             ],
           ),
         ),
@@ -124,159 +279,26 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: 10,
-      color: AppColor.secondary,
-    );
-    Widget text;
-    switch (value.toInt()) {
-      case 2:
-        text = const Text('Day 1', style: style);
-        break;
-      case 5:
-        text = const Text('Day 5', style: style);
-        break;
-      case 8:
-        text = const Text('Day 8', style: style);
-        break;
-      case 11:
-        text = const Text('Day 11', style: style);
-        break;
-      default:
-        text = const Text('', style: style);
-        break;
-    }
-
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      child: text,
+  Widget _buildGridItem(IconData icon, String title, String number) {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColor.secondary,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: AppColor.primary, size: 30),
+          const SizedBox(height: 10),
+          Text(title, style: const TextStyle(fontSize: 13, color: AppColor.primary)),
+          const SizedBox(height: 10),
+          Text(number, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColor.primary)),
+        ],
+      ),
     );
   }
-
-  Widget leftTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      fontWeight: FontWeight.bold,
-      color: AppColor.secondary,
-      fontSize: 10,
-    );
-    String text;
-    switch (value.toInt()) {
-      case 1:
-        text = '1 bids';
-        break;
-      case 5:
-        text = '5 bids';
-        break;
-      case 10:
-        text = '10 bids';
-        break;
-      case 15:
-        text = '15 bids';
-        break;
-      case 20:
-        text = '20 bids';
-        break;
-      default:
-        return Container();
-    }
-
-    return Text(text, style: style, textAlign: TextAlign.left);
-  }
-
-  LineChartData mainData() {
-    return LineChartData(
-      gridData: FlGridData(
-        show: true,
-        drawVerticalLine: true,
-        horizontalInterval: 1,
-        verticalInterval: 1,
-        getDrawingHorizontalLine: (value) {
-          return const FlLine(
-            color: AppColor.secondary,
-            strokeWidth: 1,
-          );
-        },
-        getDrawingVerticalLine: (value) {
-          return const FlLine(
-            color: AppColor.secondary,
-            strokeWidth: 1,
-          );
-        },
-      ),
-      titlesData: FlTitlesData(
-        show: true,
-        rightTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        topTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 30,
-            interval: 1,
-            getTitlesWidget: bottomTitleWidgets,
-          ),
-        ),
-        leftTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            interval: 1,
-            getTitlesWidget: leftTitleWidgets,
-            reservedSize: 42,
-          ),
-        ),
-      ),
-      borderData: FlBorderData(
-        show: true,
-        border: Border.all(color: const Color(0xff37434d)),
-      ),
-      minX: 0,
-      maxX: 12,
-      minY: 0,
-      maxY: 20,
-      lineBarsData: [
-        LineChartBarData(
-          spots:  [
-            FlSpot(0, 0),
-            FlSpot(1, numbers[1]),
-            FlSpot(5, numbers[1]),
-            FlSpot(8, numbers[0]),
-            FlSpot(11, numbers[1]),
-            FlSpot(12, numbers[0]),
-          ],
-          isCurved: true,
-          gradient: LinearGradient(
-            colors: gradientColors,
-          ),
-          barWidth: 5,
-          isStrokeCapRound: true,
-          dotData: const FlDotData(
-            show: true,
-          ),
-          belowBarData: BarAreaData(
-            show: true,
-            gradient: LinearGradient(
-              colors: gradientColors
-                  .map((color) => color.withOpacity(0.3))
-                  .toList(),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class GridItem {
-  final IconData icon;
-  final String title;
-  final String number;
-
-  GridItem(this.icon, this.title, this.number);
 }
 
 

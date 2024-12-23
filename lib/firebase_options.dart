@@ -42,17 +42,17 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyD8cP6elbvnfVkak6Gau8sh9Fqmy0ttOFc',
-    appId: '1:261142238885:web:4111ed797cd2f9b24c1f4c',
+    appId: '1:261142238885:web:0bf2a21c9e690a484c1f4c',
     messagingSenderId: '261142238885',
     projectId: 'tabacco-fda3c',
     authDomain: 'tabacco-fda3c.firebaseapp.com',
     storageBucket: 'tabacco-fda3c.firebasestorage.app',
-    measurementId: 'G-7Y24XYFMXD',
+    measurementId: 'G-YGSSD6DZ3F',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCrA39v_-i1QJ2-u1ihv2IpTpU0RqG22Sg',
-    appId: '1:261142238885:android:9516110c816b7b0a4c1f4c',
+    appId: '1:261142238885:android:000c1261beb459124c1f4c',
     messagingSenderId: '261142238885',
     projectId: 'tabacco-fda3c',
     storageBucket: 'tabacco-fda3c.firebasestorage.app',
@@ -60,13 +60,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyC29nvxEklf7jI53cpQyQr4AMFm1VQXFg0',
-    appId: '1:261142238885:ios:9ab2f51ef3ded9834c1f4c',
+    appId: '1:261142238885:ios:645560c3ae8aad994c1f4c',
     messagingSenderId: '261142238885',
     projectId: 'tabacco-fda3c',
     storageBucket: 'tabacco-fda3c.firebasestorage.app',
-    androidClientId: '261142238885-q4simcng19upspchr9ifegbcf9sngbh8.apps.googleusercontent.com',
-    iosClientId: '261142238885-7od88ebq39deiu0t03h39viqbc75ck34.apps.googleusercontent.com',
-    iosBundleId: 'com.example.auctionapp',
+    androidClientId: '261142238885-7magqiec9f70sp3f13b3q0esa26sao3e.apps.googleusercontent.com',
+    iosClientId: '261142238885-6g03t80d62fbp0jjl7efhast9p8np0sf.apps.googleusercontent.com',
+    iosBundleId: 'com.example.tobaccoSellers',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -75,19 +75,19 @@ class DefaultFirebaseOptions {
     messagingSenderId: '261142238885',
     projectId: 'tabacco-fda3c',
     storageBucket: 'tabacco-fda3c.firebasestorage.app',
-    androidClientId: '261142238885-q4simcng19upspchr9ifegbcf9sngbh8.apps.googleusercontent.com',
+    androidClientId: '261142238885-7magqiec9f70sp3f13b3q0esa26sao3e.apps.googleusercontent.com',
     iosClientId: '261142238885-7od88ebq39deiu0t03h39viqbc75ck34.apps.googleusercontent.com',
     iosBundleId: 'com.example.auctionapp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyD8cP6elbvnfVkak6Gau8sh9Fqmy0ttOFc',
-    appId: '1:261142238885:web:e4ba62a79a52d1924c1f4c',
+    appId: '1:261142238885:web:69bf24ca534800614c1f4c',
     messagingSenderId: '261142238885',
     projectId: 'tabacco-fda3c',
     authDomain: 'tabacco-fda3c.firebaseapp.com',
     storageBucket: 'tabacco-fda3c.firebasestorage.app',
-    measurementId: 'G-K0WQSPLTGK',
+    measurementId: 'G-PSSL09Z9RW',
   );
 
 }

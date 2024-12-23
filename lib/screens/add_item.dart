@@ -30,6 +30,7 @@ class _AddItemState extends State<AddItem> {
   TextEditingController priceController = TextEditingController();
   TextEditingController sizeController = TextEditingController();
   TextEditingController sizeStockController = TextEditingController();
+  TextEditingController weightController = TextEditingController(); // Add this line
 
   Map<String, int> sizeStocks = {};
 
@@ -45,7 +46,7 @@ class _AddItemState extends State<AddItem> {
   void addSizeWithStock() {
     if (sizeController.text.isNotEmpty && sizeStockController.text.isNotEmpty) {
       setState(() {
-        sizeStocks[sizeController.text] = int.parse(sizeStockController.text);
+        sizeStocks[sizeController.text.trim()] = int.parse(sizeStockController.text.trim());
         sizeController.clear();
         sizeStockController.clear();
       });
@@ -90,7 +91,14 @@ class _AddItemState extends State<AddItem> {
 
   String _formatNumber(int number) => number.toString().padLeft(2, '0');
 
-  void _handleSubmit() {
+  Future<bool> _isProductNameUnique(String productName) async {
+    final normalProducts = await _firestoreService.fetchNormalProductsByUserEmail(userEmail!);
+    final auctionProducts = await _firestoreService.fetchAuctionsByUserEmail(userEmail!);
+    return !normalProducts.any((product) => product['product_name'] == productName) &&
+           !auctionProducts.any((product) => product['product_name'] == productName);
+  }
+
+  Future<void> _handleSubmit() async {
     if (_image == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please select an image')),
@@ -107,6 +115,14 @@ class _AddItemState extends State<AddItem> {
       return;
     }
 
+    final isUnique = await _isProductNameUnique(productNameController.text.trim());
+    if (!isUnique) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Product name must be unique')),
+      );
+      return;
+    }
+
     if (listingType == 'Normal') {
       if (sizeStocks.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -117,10 +133,10 @@ class _AddItemState extends State<AddItem> {
 
       _normalSellingService.uploadProductData(
         context,
-        productNameController.text,
+        productNameController.text.trim(),
         dropdownValue,
-        priceController.text,
-        descriptionController.text,
+        priceController.text.trim(),
+        descriptionController.text.trim(),
         userName!,
         userEmail!,
         _image!,
@@ -129,14 +145,15 @@ class _AddItemState extends State<AddItem> {
     } else {
       _firestoreService.uploadAuctionData(
         context,
-        productNameController.text,
+        productNameController.text.trim(),
         dropdownValue,
-        priceController.text,
+        priceController.text.trim(),
         dateTime,
-        descriptionController.text,
+        descriptionController.text.trim(),
         userName!,
         userEmail!,
         _image!,
+        weightController.text.trim(), // Pass weight to the method
       );
     }
   }
@@ -147,12 +164,12 @@ class _AddItemState extends State<AddItem> {
       backgroundColor: AppColor.primary,
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColor.green),
+          icon: Icon(Icons.arrow_back, color: AppColor.secondary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           listingType == 'Normal' ? "Add Product" : "Add item for Auction",
-          style: TextStyle(color: AppColor.green),
+          style: TextStyle(color: AppColor.secondary),
         ),
         centerTitle: true,
         elevation: 0,
@@ -169,7 +186,7 @@ class _AddItemState extends State<AddItem> {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColor.green),
+                  border: Border.all(color: AppColor.secondary),
                 ),
                 child: Row(
                   children: [
@@ -180,7 +197,7 @@ class _AddItemState extends State<AddItem> {
                           padding: EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: listingType == 'Normal'
-                                ? AppColor.green
+                                ? AppColor.secondary
                                 : Colors.transparent,
                             borderRadius: BorderRadius.horizontal(
                               left: Radius.circular(7),
@@ -192,7 +209,7 @@ class _AddItemState extends State<AddItem> {
                               style: TextStyle(
                                 color: listingType == 'Normal'
                                     ? AppColor.primary
-                                    : AppColor.green,
+                                    : AppColor.secondary,
                               ),
                             ),
                           ),
@@ -206,7 +223,7 @@ class _AddItemState extends State<AddItem> {
                           padding: EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: listingType == 'Auction'
-                                ? AppColor.green
+                                ? AppColor.secondary
                                 : Colors.transparent,
                             borderRadius: BorderRadius.horizontal(
                               right: Radius.circular(7),
@@ -218,7 +235,7 @@ class _AddItemState extends State<AddItem> {
                               style: TextStyle(
                                 color: listingType == 'Auction'
                                     ? AppColor.primary
-                                    : AppColor.green,
+                                    : AppColor.secondary,
                               ),
                             ),
                           ),
@@ -257,7 +274,7 @@ class _AddItemState extends State<AddItem> {
                     children: const [
                       Text(
                         "Add item photo",
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        style: TextStyle(color: AppColor.secondary, fontSize: 16),
                       ),
                       Text(
                         "Max 5 MB",
@@ -323,7 +340,7 @@ class _AddItemState extends State<AddItem> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.add_circle, color: AppColor.green),
+                      icon: Icon(Icons.add_circle, color: AppColor.secondary),
                       onPressed: addSizeWithStock,
                     ),
                   ],
@@ -343,13 +360,13 @@ class _AddItemState extends State<AddItem> {
               ] else ...[
                 Text(
                   "Auction End Date",
-                  style: TextStyle(color: AppColor.green),
+                  style: TextStyle(color: AppColor.secondary),
                 ),
                 TextField(
                   controller: TextEditingController(
                     text: '${_formatNumber(dateTime.day)}/${_formatNumber(dateTime.month)}/${dateTime.year} at ${_formatNumber(dateTime.hour)}:${_formatNumber(dateTime.minute)}',
                   ),
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: AppColor.secondary),
                   onTap: pickDateTime,
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.all(5),
@@ -359,27 +376,36 @@ class _AddItemState extends State<AddItem> {
                       borderSide: BorderSide(color: Colors.white),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: AppColor.green),
+                      borderSide: BorderSide(color: AppColor.secondary),
                     ),
-                    suffixIcon: Icon(Icons.calendar_today, color: AppColor.green),
+                    suffixIcon: Icon(Icons.calendar_today, color: AppColor.secondary),
                   ),
                 ),
               ],
               SizedBox(height: 20),
 
+              CustomTextfield(
+                label: 'Weight (per unit)',
+                hinttext: "Enter weight of one unit",
+                type: TextInputType.number,
+                size: 5.0,
+                controller: weightController,
+              ),
+              SizedBox(height: 20),
+
               // Category Selection
               Text(
                 'Category',
-                style: TextStyle(color: AppColor.green),
+                style: TextStyle(color: AppColor.secondary),
               ),
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColor.green),
+                  border: Border.all(color: AppColor.secondary),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                 padding:  const EdgeInsets.symmetric(horizontal: 8.0),
                   child: DropdownButton<String>(
                     value: dropdownValue,
                     dropdownColor: AppColor.primary,
@@ -422,7 +448,7 @@ class _AddItemState extends State<AddItem> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.green,
+                  backgroundColor: AppColor.secondary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),

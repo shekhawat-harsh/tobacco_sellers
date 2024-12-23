@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:tobacco_sellers/const/colors.dart';
-import 'package:tobacco_sellers/utils/common_methods/methods.dart';
+import 'package:tobacCoSellers/const/colors.dart';
+import 'package:tobacCoSellers/utils/common_methods/methods.dart';
 import 'package:flutter/services.dart'; // Add this import
 
 class PersonalDetailsTab extends StatefulWidget {
@@ -119,10 +119,10 @@ class _PersonalDetailsTabState extends State<PersonalDetailsTab> {
             hintText: 'Enter 6-digit OTP',
             hintStyle: TextStyle(color: Colors.white38),
             enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: AppColor.green.withOpacity(0.5), width: 1),
+              borderSide: BorderSide(color: AppColor.secondary.withOpacity(0.5), width: 1),
             ),
             focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: AppColor.green, width: 2),
+              borderSide: BorderSide(color: AppColor.secondary, width: 2),
             ),
           ),
           onChanged: (value) => otp = value,
@@ -140,7 +140,7 @@ class _PersonalDetailsTabState extends State<PersonalDetailsTab> {
           ),
           Container(
             decoration: BoxDecoration(
-              color: AppColor.green,
+              color: AppColor.secondary,
               borderRadius: BorderRadius.circular(8),
             ),
             child: TextButton(
@@ -221,7 +221,7 @@ Widget _buildEditableField(String label, String value, String field) {
         color: const Color(0xFF1E1E1E), // Darker background for cards
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: AppColor.green.withOpacity(0.2),
+          color: AppColor.secondary.withOpacity(0.2),
           width: 1,
         ),
       ),
@@ -242,7 +242,7 @@ Widget _buildEditableField(String label, String value, String field) {
               if (!isEmail)
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColor.green.withOpacity(0.2),
+                    color: AppColor.secondary.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: IconButton(
@@ -310,10 +310,10 @@ Widget _buildEditableField(String label, String value, String field) {
               hintText: 'Enter new $label',
               hintStyle: TextStyle(color: Colors.white38),
               enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: AppColor.green.withOpacity(0.5), width: 1),
+                borderSide: BorderSide(color: AppColor.secondary.withOpacity(0.5), width: 1),
               ),
               focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: AppColor.green, width: 2),
+                borderSide: BorderSide(color: AppColor.secondary, width: 2),
               ),
             ),
             onChanged: (value) => newValue = value,
@@ -331,7 +331,7 @@ Widget _buildEditableField(String label, String value, String field) {
             ),
             Container(
               decoration: BoxDecoration(
-                color: AppColor.green,
+                color: AppColor.secondary,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: TextButton(
@@ -376,7 +376,7 @@ Widget _buildEditableField(String label, String value, String field) {
         leading: Container(
           margin: EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColor.green.withOpacity(0.2),
+            color: AppColor.secondary.withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: IconButton(
@@ -408,7 +408,7 @@ Widget _buildEditableField(String label, String value, String field) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColor.green),
+                valueColor: AlwaysStoppedAnimation<Color>(AppColor.secondary),
               ),
             );
           }
@@ -441,7 +441,7 @@ Widget _buildEditableField(String label, String value, String field) {
                     child: ElevatedButton.icon(
                       onPressed: _getCurrentLocation,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColor.green,
+                        backgroundColor: AppColor.secondary,
                         padding: EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:tobacco_sellers/const/colors.dart';
+import 'package:tobacCoSellers/const/colors.dart';
 import 'package:flutter/material.dart';
 
 
@@ -26,13 +26,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       backgroundColor: AppColor.primary,
       body: Center(
         child: Container(
           width: double.infinity,
           height: 150,
-          child: Image.asset('assets/images/app_logo.jpeg',fit: BoxFit.cover,),
+          child: Image.asset('assets/images/app_logo.jpeg', fit: BoxFit.cover),
         ),
       ),
     );
